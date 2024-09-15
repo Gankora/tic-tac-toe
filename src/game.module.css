@@ -1,0 +1,22 @@
+.game {
+	margin: 0;
+	color: #5687db;
+}
+
+.buttonStart {
+	cursor: pointer;
+	border: none;
+	border-radius: 10px;
+	text-decoration: none;
+	color: white;
+	background: #5687db;
+	box-shadow: 0 5px 0 #2358d3;
+	height: 30px;
+}
+
+.buttonStart:hover {
+	background: #003cc5;
+	box-shadow: none;
+	position: relative;
+	top: 2px;
+}
