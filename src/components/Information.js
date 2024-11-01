@@ -16,8 +16,6 @@ export const InformationLayout = ({ showGameState }) => {
 		return () => unsubscribe();
 	}, [showGameState]);
 
-	console.log('gameStateText', gameStateText);
-
 	return (
 		<div
 			style={{ marginTop: '15px', fontWeight: 'bolder' }}
