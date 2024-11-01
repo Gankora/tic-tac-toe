@@ -3,7 +3,7 @@ import { FieldLayout } from './components/Field';
 import { InformationLayout } from './components/Information';
 import './game.module.css';
 import style from './game.module.css';
-import React, { useState } from 'react';
+import { store } from './store';
 
 const GameLayout = ({ handleRestart }) => {
 	return (
@@ -21,11 +21,6 @@ GameLayout.propTypes = {
 };
 
 function Game() {
-	const [currentPlayer, setCurrentPlayer] = useState('X');
-	const [isGameEnded, setIsGameEnded] = useState(false); // Конец игры
-	const [isDraw, setIsDraw] = useState(false); // Ничья
-	const [field, setField] = useState(['', '', '', '', '', '', '', '', '']);
-
 	const WIN_PATTERNS = [
 		[0, 1, 2],
 		[3, 4, 5],
@@ -38,11 +33,12 @@ function Game() {
 	];
 
 	const gameState = () => {
+		const { currentPlayer, isGameEnded, isDraw } = store.getState();
 		if (isDraw) {
 			return 'Ничья';
 		} else if (isGameEnded) {
 			return `Победа: ${currentPlayer}`;
-		} else if (!isGameEnded) {
+		} else {
 			return `Ходит: ${currentPlayer}`;
 		}
 	};
@@ -55,49 +51,40 @@ function Game() {
 				newField[b] === currentPlayer &&
 				newField[c] === currentPlayer
 			) {
-				setIsGameEnded(true);
-				setCurrentPlayer(newField[a]);
+				store.dispatch({ type: 'SET_GAME_ENDED', payload: true });
+				store.dispatch({ type: 'SET_CURRENT_PLAYER', payload: newField[a] });
 
 				return;
 			}
 		}
 		if (!newField.includes('')) {
-			setIsDraw(true);
-			setIsGameEnded(true);
+			store.dispatch({ type: 'SET_DRAW', payload: true });
+			store.dispatch({ type: 'SET_GAME_ENDED', payload: true });
 		}
 	};
 
 	const handleClick = (index) => {
+		const { field, currentPlayer } = store.getState();
 		const newField = [...field];
 		newField[index] = currentPlayer;
-		setField(newField);
-		setCurrentPlayer(currentPlayer === 'X' ? 'O' : 'X');
+		store.dispatch({ type: 'SET_FIELD', payload: newField });
+		store.dispatch({
+			type: 'SET_CURRENT_PLAYER',
+			payload: currentPlayer === 'X' ? 'O' : 'X',
+		});
 
 		checkWinner(newField, currentPlayer);
-		return;
 	};
 
 	const handleRestart = () => {
-		setField(['', '', '', '', '', '', '', '', '']);
-		setIsGameEnded(false);
-		setIsDraw(false);
-		setCurrentPlayer('X');
-		return;
+		store.dispatch({ type: 'RESTART_GAME' });
 	};
 
 	return (
 		<>
 			<GameLayout handleRestart={handleRestart} />
-			<InformationLayout
-				showGameState={gameState}
-				isDraw={isDraw}
-				isGameEnded={isGameEnded}
-			/>
-			<FieldLayout
-				field={field}
-				handleClick={handleClick}
-				isGameEnded={isGameEnded}
-			/>
+			<InformationLayout showGameState={gameState} />
+			<FieldLayout handleClick={handleClick} />
 		</>
 	);
 }

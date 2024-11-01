@@ -1,18 +1,37 @@
-import style from './info.module.css';
+import styles from './info.module.css';
 import PropTypes from 'prop-types';
+import { store } from '../store';
+import { useState, useEffect } from 'react';
 
-export const InformationLayout = ({ showGameState, isGameEnded }) => {
+export const InformationLayout = ({ showGameState }) => {
+	const [gameStateText, setGameStateText] = useState('');
+
+	useEffect(() => {
+		const updateGameState = () => {
+			setGameStateText(showGameState());
+		};
+
+		updateGameState();
+		const unsubscribe = store.subscribe(updateGameState);
+		return () => unsubscribe();
+	}, [showGameState]);
+
+	console.log('gameStateText', gameStateText);
+
 	return (
 		<div
 			style={{ marginTop: '15px', fontWeight: 'bolder' }}
-			className={isGameEnded ? style.state : null}
+			className={
+				gameStateText.includes('Победа') || gameStateText.includes('Ничья')
+					? styles.state
+					: null
+			}
 		>
-			{showGameState()}
+			{gameStateText}
 		</div>
 	);
 };
 
 InformationLayout.propTypes = {
 	showGameState: PropTypes.func.isRequired,
-	isGameEnded: PropTypes.bool.isRequired,
 };
