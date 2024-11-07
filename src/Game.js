@@ -74,10 +74,7 @@ function Game() {
 		const newField = [...field];
 		newField[index] = currentPlayer;
 		dispatch(setField(newField));
-		dispatch({
-			type: 'SET_CURRENT_PLAYER',
-			payload: currentPlayer === 'X' ? 'O' : 'X',
-		});
+		dispatch(setCurrentPlayer(currentPlayer === 'X' ? 'O' : 'X'));
 
 		checkWinner(newField, currentPlayer);
 	};
