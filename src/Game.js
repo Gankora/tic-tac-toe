@@ -1,9 +1,10 @@
 import PropTypes from 'prop-types';
+import { setCurrentPlayer, setDraw, setField, setGameEnded, RESET_GAME } from './actions';
+import { useDispatch, useSelector } from 'react-redux';
 import { FieldLayout } from './components/Field';
 import { InformationLayout } from './components/Information';
 import './game.module.css';
 import style from './game.module.css';
-import { store } from './store';
 
 const GameLayout = ({ handleRestart }) => {
 	return (
@@ -21,6 +22,13 @@ GameLayout.propTypes = {
 };
 
 function Game() {
+	const dispatch = useDispatch();
+
+	const currentPlayer = useSelector((state) => state.currentPlayer);
+	const isGameEnded = useSelector((state) => state.isGameEnded);
+	const isDraw = useSelector((state) => state.isDraw);
+	const field = useSelector((state) => state.field);
+
 	const WIN_PATTERNS = [
 		[0, 1, 2],
 		[3, 4, 5],
@@ -33,7 +41,6 @@ function Game() {
 	];
 
 	const gameState = () => {
-		const { currentPlayer, isGameEnded, isDraw } = store.getState();
 		if (isDraw) {
 			return 'Ничья';
 		} else if (isGameEnded) {
@@ -51,24 +58,23 @@ function Game() {
 				newField[b] === currentPlayer &&
 				newField[c] === currentPlayer
 			) {
-				store.dispatch({ type: 'SET_GAME_ENDED', payload: true });
-				store.dispatch({ type: 'SET_CURRENT_PLAYER', payload: newField[a] });
+				dispatch(setGameEnded());
+				dispatch(setCurrentPlayer(newField[a]));
 
 				return;
 			}
 		}
 		if (!newField.includes('')) {
-			store.dispatch({ type: 'SET_DRAW', payload: true });
-			store.dispatch({ type: 'SET_GAME_ENDED', payload: true });
+			dispatch(setDraw());
+			dispatch(setGameEnded());
 		}
 	};
 
 	const handleClick = (index) => {
-		const { field, currentPlayer } = store.getState();
 		const newField = [...field];
 		newField[index] = currentPlayer;
-		store.dispatch({ type: 'SET_FIELD', payload: newField });
-		store.dispatch({
+		dispatch(setField(newField));
+		dispatch({
 			type: 'SET_CURRENT_PLAYER',
 			payload: currentPlayer === 'X' ? 'O' : 'X',
 		});
@@ -77,7 +83,7 @@ function Game() {
 	};
 
 	const handleRestart = () => {
-		store.dispatch({ type: 'RESTART_GAME' });
+		dispatch(RESET_GAME);
 	};
 
 	return (

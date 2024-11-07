@@ -1,25 +1,10 @@
-// Cобственный мини-Redux
-import { appReducer, initialState } from './reducer';
+import { appReducer } from './reducer';
+import { createStore, applyMiddleware, compose } from 'redux';
+import { thunk } from 'redux-thunk';
 
-const createStore = (reducer) => {
-	let state; // изначально будет равен undefined
-	let listeners = [];
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
-	return {
-		dispatch: (action) => {
-			state = reducer(state, action); // если state = undefined, то по умолчанию state = initialState (см. reducer.js)
-			listeners.forEach((listener) => listener()); // уведомляем всех подписчиков
-		},
-		getState: () => state,
-		subscribe: (listener) => {
-			listeners.push(listener); // добавляем подписичка
-			return () => {
-				listeners = listeners.filter((l) => l !== listener); // удаление подписчика
-			};
-		},
-	};
-};
-
-export const store = createStore(appReducer, initialState);
-
-store.dispatch({}); // для определения начального состояния (initialState)
+export const store = createStore(
+	appReducer,
+	/* preloadedState, */ composeEnhancers(applyMiddleware(thunk)),
+);
