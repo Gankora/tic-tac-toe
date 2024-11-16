@@ -1,35 +1,37 @@
-import styles from './info.module.css';
 import PropTypes from 'prop-types';
-import { store } from '../store';
-import { useState, useEffect } from 'react';
+import { Component } from 'react';
 
-export const InformationLayout = ({ showGameState }) => {
-	const [gameStateText, setGameStateText] = useState('');
+class InformationLayout extends Component {
+	render() {
+		const { currentPlayer, isDraw, isGameEnded } = this.props;
 
-	useEffect(() => {
-		const updateGameState = () => {
-			setGameStateText(showGameState());
-		};
+		let gameStateText;
+		if (isDraw) {
+			gameStateText = 'Ничья';
+		} else if (isGameEnded) {
+			gameStateText = `Победа: ${currentPlayer}`;
+		} else {
+			gameStateText = `Ходит: ${currentPlayer}`;
+		}
 
-		updateGameState();
-		const unsubscribe = store.subscribe(updateGameState);
-		return () => unsubscribe();
-	}, [showGameState]);
-
-	return (
-		<div
-			style={{ marginTop: '15px', fontWeight: 'bolder' }}
-			className={
-				gameStateText.includes('Победа') || gameStateText.includes('Ничья')
-					? styles.state
-					: null
-			}
-		>
-			{gameStateText}
-		</div>
-	);
-};
+		return (
+			<div
+				className={`mt-4 font-bold text-center ${
+					gameStateText.includes('Победа') || gameStateText.includes('Ничья')
+						? 'text-green-700'
+						: ''
+				}`}
+			>
+				{gameStateText}
+			</div>
+		);
+	}
+}
 
 InformationLayout.propTypes = {
-	showGameState: PropTypes.func.isRequired,
+	currentPlayer: PropTypes.string.isRequired,
+	isDraw: PropTypes.bool.isRequired,
+	isGameEnded: PropTypes.bool.isRequired,
 };
+
+export { InformationLayout };
